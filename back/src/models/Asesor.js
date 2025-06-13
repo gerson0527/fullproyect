@@ -30,7 +30,7 @@ const Asesor = sequelize.define('Asesor', {
     type: DataTypes.TEXT
   },
   fechaIngreso: {
-    type: DataTypes.DATE
+    type: DataTypes.DATE 
   },
   creditos: {
     type: DataTypes.INTEGER,
@@ -44,6 +44,8 @@ const Asesor = sequelize.define('Asesor', {
     type: DataTypes.ENUM('Alto', 'Medio', 'Bajo', 'Nuevo'),
     defaultValue: 'Nuevo'
   }
+}, {
+  tableName: 'asesor' // Especifica el nombre exacto de la tabla
 });
 
 module.exports = Asesor;

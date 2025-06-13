@@ -31,9 +31,15 @@ module.exports = {
         type: Sequelize.FLOAT
 
       },
+      fechanacimiento: {
+        type: Sequelize.DATE
+      },
       creditosActivos: {
         type: Sequelize.INTEGER,
         defaultValue: 0
+      },
+      ingresosMensuales: {
+        type: Sequelize.FLOAT
       },
       estado: {
         type: Sequelize.ENUM('Activo', 'Pendiente', 'Inactivo'),

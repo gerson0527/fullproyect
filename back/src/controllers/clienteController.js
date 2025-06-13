@@ -1,41 +1,9 @@
-const Cliente = require('../models/Cliente');
+const { Cliente } = require('../models');
 
-exports.getClientes = async (req, res) => {
+exports.getAllClientes = async (req, res) => {
   try {
-    const clientes = await Cliente.find();
+    const clientes = await Cliente.findAll(); // Cambiado de find() a findAll()
     res.json(clientes);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-exports.createCliente = async (req, res) => {
-  try {
-    const cliente = new Cliente(req.body);
-    const nuevoCliente = await cliente.save();
-    res.status(201).json(nuevoCliente);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-exports.updateCliente = async (req, res) => {
-  try {
-    const cliente = await Cliente.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    res.json(cliente);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-exports.deleteCliente = async (req, res) => {
-  try {
-    await Cliente.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Cliente eliminado correctamente' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -43,18 +11,51 @@ exports.deleteCliente = async (req, res) => {
 
 exports.getClienteById = async (req, res) => {
   try {
-    const cliente = await Cliente.findById(req.params.id);
+    const cliente = await Cliente.findByPk(req.params.id); // Cambiado de findById a findByPk
     res.json(cliente);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-exports.getAllClientes = async (req, res) => {
+exports.createCliente = async (req, res) => {
   try {
-    const clientes = await Cliente.find();
-    res.json(clientes);
-  }catch (error) {
+    const cliente = await Cliente.create(req.body); // Cambiado de new Cliente a Cliente.create
+    console.log(cliente);
+    res.status(201).json(cliente);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.updateCliente = async (req, res) => {
+  try {
+    const [updated] = await Cliente.update(req.body, {
+      where: { id: req.params.id }
+    });
+    if (updated) {
+      const updatedCliente = await Cliente.findByPk(req.params.id);
+      res.json(updatedCliente);
+    } else {
+      res.status(404).json({ message: 'Cliente no encontrado' });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.deleteCliente = async (req, res) => {
+  try {
+    const deleted = await Cliente.destroy({
+      where: { id: req.params.id }
+    });
+    if (deleted) {
+      res.json({ message: 'Cliente eliminado correctamente' });
+    } else {
+      res.status(404).json({ message: 'Cliente no encontrado' });
+    }
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
+};

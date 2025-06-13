@@ -3,6 +3,7 @@ const Asesor = require('./Asesor');
 const Credito = require('./Credito');
 const Banco = require('./Banco');
 const Financiera = require('./Financiera');
+const User = require('./User');
 
 // Relaciones
 Credito.belongsTo(Cliente);
@@ -22,5 +23,6 @@ module.exports = {
   Asesor,
   Credito,
   Banco,
-  Financiera
+  Financiera,
+  User
 };

@@ -2,7 +2,7 @@ const Financiera = require('../models/Financiera');
 
 exports.getFinancieras = async (req, res) => {
   try {
-    const financieras = await Financiera.find();
+    const financieras = await Financiera.findAll();
     res.json(financieras);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -11,9 +11,8 @@ exports.getFinancieras = async (req, res) => {
 
 exports.createFinanciera = async (req, res) => {
   try {
-    const financiera = new Financiera(req.body);
-    const nuevaFinanciera = await financiera.save();
-    res.status(201).json(nuevaFinanciera);
+    const financiera = await Financiera.create(req.body);
+    res.status(201).json(financiera);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -21,12 +20,14 @@ exports.createFinanciera = async (req, res) => {
 
 exports.updateFinanciera = async (req, res) => {
   try {
-    const financiera = await Financiera.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    res.json(financiera);
+    const [updated] = await Financiera.update(req.body, {
+      where: { id: req.params.id }
+    });
+    if (updated) {
+      const updatedFinanciera = await Financiera.findByPk(req.params.id);
+      return res.json(updatedFinanciera);
+    }
+    throw new Error('Financiera no encontrada');
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -34,8 +35,13 @@ exports.updateFinanciera = async (req, res) => {
 
 exports.deleteFinanciera = async (req, res) => {
   try {
-    await Financiera.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Financiera eliminada correctamente' });
+    const deleted = await Financiera.destroy({
+      where: { id: req.params.id }
+    });
+    if (deleted) {
+      return res.json({ message: 'Financiera eliminada correctamente' });
+    }
+    throw new Error('Financiera no encontrada');
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -43,9 +49,12 @@ exports.deleteFinanciera = async (req, res) => {
 
 exports.getFinancieraById = async (req, res) => {
   try {
-    const financiera = await Financiera.findById(req.params.id);
+    const financiera = await Financiera.findByPk(req.params.id);
+    if (!financiera) {
+      return res.status(404).json({ message: 'Financiera no encontrada' });
+    }
     res.json(financiera);
-  }catch (error) {
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
+};

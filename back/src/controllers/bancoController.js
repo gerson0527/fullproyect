@@ -2,7 +2,7 @@ const Banco = require('../models/Banco');
 
 exports.getBancos = async (req, res) => {
   try {
-    const bancos = await Banco.find();
+    const bancos = await Banco.findAll();
     res.json(bancos);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -11,9 +11,8 @@ exports.getBancos = async (req, res) => {
 
 exports.createBanco = async (req, res) => {
   try {
-    const banco = new Banco(req.body);
-    const nuevoBanco = await banco.save();
-    res.status(201).json(nuevoBanco);
+    const banco = await Banco.create(req.body);
+    res.status(201).json(banco);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -21,12 +20,14 @@ exports.createBanco = async (req, res) => {
 
 exports.updateBanco = async (req, res) => {
   try {
-    const banco = await Banco.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    res.json(banco);
+    const [updated] = await Banco.update(req.body, {
+      where: { id: req.params.id }
+    });
+    if (updated) {
+      const updatedBanco = await Banco.findByPk(req.params.id);
+      return res.json(updatedBanco);
+    }
+    throw new Error('Banco no encontrado');
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -34,8 +35,13 @@ exports.updateBanco = async (req, res) => {
 
 exports.deleteBanco = async (req, res) => {
   try {
-    await Banco.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Banco eliminado correctamente' });
+    const deleted = await Banco.destroy({
+      where: { id: req.params.id }
+    });
+    if (deleted) {
+      return res.json({ message: 'Banco eliminado correctamente' });
+    }
+    throw new Error('Banco no encontrado');
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -43,7 +49,10 @@ exports.deleteBanco = async (req, res) => {
 
 exports.getBancoById = async (req, res) => {
   try {
-    const banco = await Banco.findById(req.params.id);
+    const banco = await Banco.findByPk(req.params.id);
+    if (!banco) {
+      return res.status(404).json({ message: 'Banco no encontrado' });
+    }
     res.json(banco);
   } catch (error) {
     res.status(500).json({ message: error.message });
